@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import { ChatCompletionUserMessageParam } from 'openai/resources/index.mjs'
@@ -13,9 +13,14 @@ import { Form, FormControl, FormField, FormItem } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 
+import { cn } from '@/lib/utils'
 import { MessageSquare } from 'lucide-react'
 import Heading from '@/components/heading'
-import { cn } from '@/lib/utils'
+import { Empty } from '@/components/empty'
+import { Loader } from '@/components/loader'
+import Markdown from 'react-markdown'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
 const ConversationPage = () => {
   const router = useRouter()
@@ -29,6 +34,17 @@ const ConversationPage = () => {
   })
 
   const isLoading = form.formState.isSubmitting
+
+  useEffect(() => {
+    const lastMessage = document.querySelector('#messages > *:last-child')
+    if (lastMessage) {
+      lastMessage.scrollIntoView({ behavior: 'smooth' })
+      console.log(promptInput.current)
+      promptInput?.current?.focus()
+    }
+  })
+
+  const promptInput = useRef<HTMLInputElement>(null)
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -68,19 +84,52 @@ const ConversationPage = () => {
         className="flex flex-col flex-1 gap-y-2 py-4 pl-8 pr-6 pb-4 overflow-y-auto h-full [scrollbar-gutter:stable]"
         id="messages"
       >
-        {messages.map((msg, i) => (
-          <div
-            key={i}
-            className={cn(
-              'px-4 py-2 rounded-lg',
-              msg.role === 'user'
-                ? 'bg-blue-100 self-end'
-                : 'bg-violet-100 self-start'
-            )}
-          >
-            {msg.content as string}
+        {messages.map((msg, i) => {
+          return (
+            <div
+              key={i}
+              className={cn(
+                'px-4 py-2 rounded-lg whitespace-pre-wrap',
+                msg.role === 'user'
+                  ? 'bg-blue-100 self-end'
+                  : 'bg-violet-100 self-start max-w-[80%]'
+              )}
+            >
+              {/* <Markdown>{msg.content as string}</Markdown> */}
+
+              <Markdown
+                children={msg.content as string}
+                components={{
+                  code(props) {
+                    const { children, className, node, ...rest } = props
+                    const match = /language-(\w+)/.exec(className || '')
+                    return match ? (
+                      <SyntaxHighlighter
+                        {...rest}
+                        PreTag="div"
+                        children={String(children).replace(/\n$/, '')}
+                        language={match[1]}
+                        style={vscDarkPlus}
+                      />
+                    ) : (
+                      <code {...rest} className={className}>
+                        {children}
+                      </code>
+                    )
+                  },
+                }}
+              />
+            </div>
+          )
+        })}
+        {isLoading && (
+          <div className="p-8 rounded-lg w-full flex items-center justify-center">
+            <Loader />
           </div>
-        ))}
+        )}
+        {messages.length < 1 && !isLoading && (
+          <Empty label="No conversation started" />
+        )}
       </div>
       <Form {...form}>
         <div className="px-4 lg:px-8 bg-zinc-100">
@@ -96,8 +145,10 @@ const ConversationPage = () => {
                     <Input
                       className="px-4 outline-none focus-visible:ring-0 focus-visible:ring-transparent"
                       disabled={isLoading}
-                      placeholder="ex. How do I calculate the radius of a circle?"
+                      placeholder="Type your prompt here..."
+                      autoFocus
                       {...field}
+                      ref={promptInput}
                     />
                   </FormControl>
                 </FormItem>
