@@ -2,10 +2,46 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 0.5rem;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-zinc-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-zinc-300 outline-none;
+}
+
+::selection,
+::-moz-selection {
+  @apply bg-emerald-300 text-zinc-900;
+}
+
 html,
 body,
 :root {
   height: 100%;
+}
+
+/* Change Autocomplete styles in Chrome*/
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  border: none;
+  /* -webkit-text-fill-color: white; */
+  -webkit-box-shadow: 0 0 0px 1000px #ffffff inset;
+  box-shadow: 0 0 0px 1000px #ffffff inset;
+  /* transition: background-color 5000s ease-in-out 0s; */
+  /* color: white; */
 }
 
 @layer base {

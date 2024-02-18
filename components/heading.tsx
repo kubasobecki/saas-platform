@@ -17,7 +17,10 @@ const Heading = ({
   bgColor,
 }: HeadingProps) => {
   return (
-    <div className="px-4 lg:px-8 flex items-center gap-x-3 mb-8">
+    <div
+      className="px-4 lg:px-8 py-4 flex items-center gap-x-3 border-b border-b-zinc-100"
+      id="heading"
+    >
       <div className={cn('p-2 w-fit rounded-md', bgColor)}>
         <Icon className={cn('w-10 h-10', iconColor)} />
       </div>

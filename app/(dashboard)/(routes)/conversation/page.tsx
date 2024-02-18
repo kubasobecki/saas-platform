@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button'
 
 import { MessageSquare } from 'lucide-react'
 import Heading from '@/components/heading'
+import { cn } from '@/lib/utils'
 
 const ConversationPage = () => {
   const router = useRouter()
@@ -37,12 +38,13 @@ const ConversationPage = () => {
       }
       const newMessages = [...messages, userMessage]
 
-      console.log(messages)
+      setMessages(current => [...current, userMessage])
+
       const response = await axios.post('/api/conversation', {
         messages: newMessages,
       })
 
-      setMessages(current => [...current, userMessage, response.data])
+      setMessages(current => [...current, response.data])
 
       form.reset()
     } catch (error: any) {
@@ -54,7 +56,7 @@ const ConversationPage = () => {
   }
 
   return (
-    <div>
+    <>
       <Heading
         title="Conversation"
         description="Our most advanced conversation model"
@@ -62,46 +64,55 @@ const ConversationPage = () => {
         iconColor="text-violet-500"
         bgColor="bg-violet-500/10"
       />
-      <div className="px-4 lg:px-8">
-        <div>
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="rounded-lg border w-full p-4 px-3 md:px-6 focus-within:shadow-sm grid grid-cols-12 gap-2"
-            >
-              <FormField
-                name="prompt"
-                render={({ field }) => (
-                  <FormItem className="col-span-12 lg:col-span-10">
-                    <FormControl className="m-0 p-0">
-                      <Input
-                        className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent"
-                        disabled={isLoading}
-                        placeholder="How do I calculate the radius of a circle?"
-                        {...field}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <Button
-                className="col-span-12 lg:col-span-2 w-full"
-                disabled={isLoading}
-              >
-                Generate
-              </Button>
-            </form>
-          </Form>
-        </div>
-        <div className="space-y-4 mt-4">
-          <div className="flex flex-col-reverse gap-y-4">
-            {messages.map((msg, i) => (
-              <div key={i}>{msg.content as string}</div>
-            ))}
+      <div
+        className="flex flex-col flex-1 gap-y-2 py-4 pl-8 pr-6 pb-4 overflow-y-auto h-full [scrollbar-gutter:stable]"
+        id="messages"
+      >
+        {messages.map((msg, i) => (
+          <div
+            key={i}
+            className={cn(
+              'px-4 py-2 rounded-lg',
+              msg.role === 'user'
+                ? 'bg-blue-100 self-end'
+                : 'bg-violet-100 self-start'
+            )}
+          >
+            {msg.content as string}
           </div>
-        </div>
+        ))}
       </div>
-    </div>
+      <Form {...form}>
+        <div className="px-4 lg:px-8 bg-zinc-100">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="w-full py-4 focus-within:shadow-sm grid grid-cols-12 gap-2"
+          >
+            <FormField
+              name="prompt"
+              render={({ field }) => (
+                <FormItem className="col-span-12 lg:col-span-10">
+                  <FormControl className="m-0 p-0">
+                    <Input
+                      className="px-4 outline-none focus-visible:ring-0 focus-visible:ring-transparent"
+                      disabled={isLoading}
+                      placeholder="ex. How do I calculate the radius of a circle?"
+                      {...field}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <Button
+              className="col-span-12 lg:col-span-2 w-full"
+              disabled={isLoading}
+            >
+              Generate
+            </Button>
+          </form>
+        </div>
+      </Form>
+    </>
   )
 }
 
