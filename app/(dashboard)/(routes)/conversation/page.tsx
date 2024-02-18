@@ -83,7 +83,7 @@ const ConversationPage = () => {
         bgColor="bg-violet-500/10"
       />
       <div
-        className="flex flex-col flex-1 gap-y-2 py-4 pl-8 pr-6 pb-4 overflow-y-auto h-full [scrollbar-gutter:stable]"
+        className="flex flex-col flex-1 gap-y-2 py-4 pl-4 pr-2 md:pl-8 md:pr-6 pb-4 overflow-y-auto overflow-x-hidden h-full [scrollbar-gutter:stable]"
         id="messages"
       >
         {messages.map((msg, i) => {
@@ -91,16 +91,16 @@ const ConversationPage = () => {
             <div
               key={i}
               className={cn(
-                'px-4 py-2 rounded-lg max-w-[90%] text-sm whitespace-pre-wrap',
+                'px-2 md:px-4 py-2 rounded-lg md:max-w-[90%] text-sm whitespace-pre-wrap',
                 msg.role === 'user'
-                  ? 'bg-blue-100 self-end pr-2'
-                  : 'bg-violet-100 self-start pl-2'
+                  ? 'bg-blue-100 self-end md:pr-2'
+                  : 'bg-violet-100 self-start md:pl-2'
               )}
             >
               {/* <Markdown>{msg.content as string}</Markdown> */}
               <div
                 className={cn(
-                  'flex gap-2',
+                  'flex-col md:flex-row gap-2',
                   msg.role === 'user' ? 'flex-row-reverse' : ''
                 )}
               >
@@ -116,6 +116,7 @@ const ConversationPage = () => {
                           <SyntaxHighlighter
                             {...rest}
                             PreTag="div"
+                            wrapLongLines={true}
                             children={String(children).replace(/\n$/, '')}
                             language={match[1]}
                             style={vscDarkPlus}
