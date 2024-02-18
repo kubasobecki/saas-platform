@@ -21,6 +21,8 @@ import { Loader } from '@/components/loader'
 import Markdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import AvatarUser from '@/components/avatar-user'
+import AvatarBot from '@/components/avatar-bot'
 
 const ConversationPage = () => {
   const router = useRouter()
@@ -89,36 +91,45 @@ const ConversationPage = () => {
             <div
               key={i}
               className={cn(
-                'px-4 py-2 rounded-lg whitespace-pre-wrap',
+                'px-4 py-2 rounded-lg max-w-[90%] text-sm whitespace-pre-wrap',
                 msg.role === 'user'
-                  ? 'bg-blue-100 self-end'
-                  : 'bg-violet-100 self-start max-w-[80%]'
+                  ? 'bg-blue-100 self-end pr-2'
+                  : 'bg-violet-100 self-start pl-2'
               )}
             >
               {/* <Markdown>{msg.content as string}</Markdown> */}
-
-              <Markdown
-                children={msg.content as string}
-                components={{
-                  code(props) {
-                    const { children, className, node, ...rest } = props
-                    const match = /language-(\w+)/.exec(className || '')
-                    return match ? (
-                      <SyntaxHighlighter
-                        {...rest}
-                        PreTag="div"
-                        children={String(children).replace(/\n$/, '')}
-                        language={match[1]}
-                        style={vscDarkPlus}
-                      />
-                    ) : (
-                      <code {...rest} className={className}>
-                        {children}
-                      </code>
-                    )
-                  },
-                }}
-              />
+              <div
+                className={cn(
+                  'flex gap-2',
+                  msg.role === 'user' ? 'flex-row-reverse' : ''
+                )}
+              >
+                {msg.role === 'user' ? <AvatarUser /> : <AvatarBot />}
+                <div>
+                  <Markdown
+                    children={msg.content as string}
+                    components={{
+                      code(props) {
+                        const { children, className, node, ...rest } = props
+                        const match = /language-(\w+)/.exec(className || '')
+                        return match ? (
+                          <SyntaxHighlighter
+                            {...rest}
+                            PreTag="div"
+                            children={String(children).replace(/\n$/, '')}
+                            language={match[1]}
+                            style={vscDarkPlus}
+                          />
+                        ) : (
+                          <code {...rest} className={className}>
+                            {children}
+                          </code>
+                        )
+                      },
+                    }}
+                  />
+                </div>
+              </div>
             </div>
           )
         })}
