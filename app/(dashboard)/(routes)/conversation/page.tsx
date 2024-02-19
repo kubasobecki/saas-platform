@@ -18,15 +18,24 @@ import { MessageSquare } from 'lucide-react'
 import Heading from '@/components/heading'
 import { Empty } from '@/components/empty'
 import { Loader } from '@/components/loader'
+
 import Markdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
+interface CodeProps {
+  node?: any
+  inline?: any
+  className?: any
+  children?: any
+}
+
 import AvatarUser from '@/components/avatar-user'
 import AvatarBot from '@/components/avatar-bot'
 
 const ConversationPage = () => {
   const router = useRouter()
   const [messages, setMessages] = useState<ChatCompletionUserMessageParam[]>([])
+  const promptInput = useRef<HTMLInputElement>(null)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -34,19 +43,15 @@ const ConversationPage = () => {
       prompt: '',
     },
   })
-
   const isLoading = form.formState.isSubmitting
 
   useEffect(() => {
     const lastMessage = document.querySelector('#messages > *:last-child')
     if (lastMessage) {
       lastMessage.scrollIntoView({ behavior: 'smooth' })
-      console.log(promptInput.current)
       promptInput?.current?.focus()
     }
   })
-
-  const promptInput = useRef<HTMLInputElement>(null)
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -100,27 +105,26 @@ const ConversationPage = () => {
               {/* <Markdown>{msg.content as string}</Markdown> */}
               <div
                 className={cn(
-                  'flex-col md:flex-row gap-2',
-                  msg.role === 'user' ? 'flex-row-reverse' : ''
+                  'flex flex-col md:flex-row gap-2',
+                  msg.role === 'user' ? 'md:flex-row-reverse' : ''
                 )}
               >
                 {msg.role === 'user' ? <AvatarUser /> : <AvatarBot />}
                 <div>
                   <Markdown
-                    children={msg.content as string}
                     components={{
-                      code(props) {
-                        const { children, className, node, ...rest } = props
+                      code({ children, className, node, ...rest }: CodeProps) {
                         const match = /language-(\w+)/.exec(className || '')
                         return match ? (
                           <SyntaxHighlighter
-                            {...rest}
-                            PreTag="div"
-                            wrapLongLines={true}
-                            children={String(children).replace(/\n$/, '')}
-                            language={match[1]}
                             style={vscDarkPlus}
-                          />
+                            PreTag="div"
+                            language={match[1]}
+                            wrapLongLines={true}
+                            {...rest}
+                          >
+                            {String(children).replace(/\n$/, '')}
+                          </SyntaxHighlighter>
                         ) : (
                           <code {...rest} className={className}>
                             {children}
@@ -128,7 +132,9 @@ const ConversationPage = () => {
                         )
                       },
                     }}
-                  />
+                  >
+                    {msg.content as string}
+                  </Markdown>
                 </div>
               </div>
             </div>
