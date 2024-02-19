@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 
 import { cn } from '@/lib/utils'
-import { MessageSquare } from 'lucide-react'
+import { Code } from 'lucide-react'
 import Heading from '@/components/heading'
 import { Empty } from '@/components/empty'
 import { Loader } from '@/components/loader'
@@ -27,12 +27,13 @@ interface CodeProps {
   inline?: any
   className?: any
   children?: any
+  customStyle?: any
 }
 
 import AvatarUser from '@/components/avatar-user'
 import AvatarBot from '@/components/avatar-bot'
 
-const ConversationPage = () => {
+const CodePage = () => {
   const router = useRouter()
   const [messages, setMessages] = useState<ChatCompletionUserMessageParam[]>([])
   const promptInput = useRef<HTMLInputElement>(null)
@@ -63,7 +64,7 @@ const ConversationPage = () => {
 
       setMessages(current => [...current, userMessage])
 
-      const response = await axios.post('/api/conversation', {
+      const response = await axios.post('/api/code', {
         messages: newMessages,
       })
 
@@ -81,11 +82,11 @@ const ConversationPage = () => {
   return (
     <>
       <Heading
-        title="Conversation"
-        description="Our most advanced conversation model"
-        icon={MessageSquare}
-        iconColor="text-violet-500"
-        bgColor="bg-violet-500/10"
+        title="Code Generation"
+        description="Generate code using descriptive text"
+        icon={Code}
+        iconColor="text-green-600"
+        bgColor="bg-green-600/10"
       />
       <div
         className="flex flex-col flex-1 gap-y-2 py-4 pl-4 pr-2 md:pl-8 md:pr-6 pb-4 overflow-y-auto overflow-x-hidden h-full [scrollbar-gutter:stable]"
@@ -134,7 +135,7 @@ const ConversationPage = () => {
                       },
                     }}
                   >
-                    {msg.content as string}
+                    {(msg.content as string) || ''}
                   </Markdown>
                 </div>
               </div>
@@ -186,4 +187,4 @@ const ConversationPage = () => {
   )
 }
 
-export default ConversationPage
+export default CodePage

@@ -1,8 +1,15 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs'
 import OpenAI from 'openai'
+import { ChatCompletionMessageParam } from 'openai/resources/index.mjs'
 
 const openai = new OpenAI()
+
+const instructionMessage: ChatCompletionMessageParam = {
+  role: 'system',
+  content:
+    'You are a code generator. You must answer only in markdown snippets. Use code comments for explanations.',
+}
 
 export async function POST(req: Request) {
   try {
@@ -16,12 +23,12 @@ export async function POST(req: Request) {
 
     const response = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
-      messages,
+      messages: [instructionMessage, ...messages],
     })
 
     return NextResponse.json(response.choices[0].message, { status: 200 })
   } catch (error) {
-    console.log('[CONVERSATION_ERROR]', error)
+    console.log('[CODE_ERROR]', error)
     return new NextResponse('Internal error', { status: 500 })
   }
 }
