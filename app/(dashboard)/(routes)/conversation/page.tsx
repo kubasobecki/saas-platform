@@ -102,7 +102,6 @@ const ConversationPage = () => {
                   : 'bg-violet-100 self-start md:pl-2'
               )}
             >
-              {/* <Markdown>{msg.content as string}</Markdown> */}
               <div
                 className={cn(
                   'flex flex-col md:flex-row gap-2',
