@@ -7,8 +7,9 @@ import {
   LayoutDashboard,
   MessageSquare,
   Music,
+  Speech,
   Settings,
-  VideoIcon,
+  Video,
 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -24,32 +25,44 @@ const routes = [
   {
     label: 'Conversation',
     icon: MessageSquare,
-    href: '/conversation',
     color: 'text-violet-500',
+    bgColor: 'bg-violet-500/10',
+    href: '/conversation',
   },
   {
-    label: 'Image Generation',
-    icon: ImageIcon,
-    href: '/image',
-    color: 'text-pink-700',
-  },
-  {
-    label: 'Video Generation',
-    icon: VideoIcon,
-    href: '/video',
-    color: 'text-orange-700',
+    label: 'Text to Speech',
+    icon: Speech,
+    color: 'text-yellow-500',
+    bgColor: 'bg-yellow-500/10',
+    href: '/speech',
   },
   {
     label: 'Music Generation',
     icon: Music,
+    color: 'text-emerald-500',
+    bgColor: 'bg-emerald-500/10',
     href: '/music',
-    color: 'text-emerald-700',
+  },
+  {
+    label: 'Image Generation',
+    icon: ImageIcon,
+    color: 'text-pink-600',
+    bgColor: 'bg-pink-600/10',
+    href: '/image',
+  },
+  {
+    label: 'Video Generation',
+    icon: Video,
+    color: 'text-orange-500',
+    bgColor: 'bg-orange-500/10',
+    href: '/video',
   },
   {
     label: 'Code Generation',
     icon: Code,
+    color: 'text-green-500',
+    bgColor: 'bg-green-500/10',
     href: '/code',
-    color: 'text-green-700',
   },
   {
     label: 'Settings',

@@ -6,47 +6,52 @@ import axios from 'axios'
 
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
-import { formSchema, amountOptions, resolutionOptions } from './constants'
+import {
+  formSchema,
+  voiceOptions,
+  formatOptions,
+  speedOptions,
+} from './constants'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import {
-  Select,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-} from '@/components/ui/select'
 
 import { cn } from '@/lib/utils'
-import { Download, ImageIcon } from 'lucide-react'
+import { Speech } from 'lucide-react'
 import Heading from '@/components/heading'
 import { Empty } from '@/components/empty'
 import { Loader } from '@/components/loader'
-import { Card, CardFooter } from '@/components/ui/card'
-import Image from 'next/image'
+
 import AvatarUser from '@/components/avatar-user'
 import AvatarBot from '@/components/avatar-bot'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Slider } from '@/components/ui/slider'
 
 type Query = {
   role: 'user' | 'agent'
   prompt?: string
-  generatedImages?: string[]
+  fileName?: string
 }
 
-const ImagePage = () => {
+const SpeechPage = () => {
   const router = useRouter()
-  const promptInput = useRef<HTMLInputElement>(null)
-
   const [messages, setMessages] = useState<Query[]>([])
+  const promptInput = useRef<HTMLInputElement>(null)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      prompt: '',
-      amount: '1',
-      resolution: '512x512',
+      input: '',
+      voice: '',
+      format: '',
+      speed: 1,
     },
   })
   const isLoading = form.formState.isSubmitting
@@ -55,17 +60,20 @@ const ImagePage = () => {
     const lastMessage = document.querySelector('#messages > *:last-child')
     if (lastMessage) {
       lastMessage.scrollIntoView({ behavior: 'smooth' })
-      promptInput?.current?.focus()
+      if (promptInput.current) {
+        promptInput.current.value = ''
+        promptInput.current.focus()
+      }
     }
+    console.log(messages)
   })
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      setMessages(prev => [...prev, { role: 'user', prompt: values.prompt }])
-      const response = await axios.post('/api/image', values)
-      const urls = response.data.map((image: { url: string }) => image.url)
-      setMessages(prev => [...prev, { role: 'agent', generatedImages: urls }])
-      form.reset()
+      setMessages(prev => [...prev, { role: 'user', prompt: values.input }])
+      const response = await axios.post('/api/speech', values)
+      const fileName = response.data
+      setMessages(prev => [...prev, { role: 'agent', fileName }])
     } catch (error: any) {
       // TODO: Open Pro Modal
       console.log(error)
@@ -77,11 +85,11 @@ const ImagePage = () => {
   return (
     <>
       <Heading
-        title="Image Generation"
-        description="Turn your prompt into image"
-        icon={ImageIcon}
-        iconColor="text-pink-500"
-        bgColor="bg-pink-500/10"
+        title="Text to Speech"
+        description="Turn your prompt into speech"
+        icon={Speech}
+        iconColor="text-yellow-500"
+        bgColor="bg-yellow-500/10"
       />
       <div
         className="flex flex-col flex-1 gap-y-2 py-4 pl-4 pr-2 md:pl-8 md:pr-6 pb-4 overflow-y-auto overflow-x-hidden h-full [scrollbar-gutter:stable]"
@@ -103,31 +111,13 @@ const ImagePage = () => {
                 <p>{msg.prompt}</p>
               </div>
             )}
-            {msg.generatedImages && (
+            {msg.fileName && (
               <div className="flex flex-col md:flex-row gap-2">
                 <AvatarBot />
                 <div className="flex flex-wrap gap-2">
-                  {msg.generatedImages.map((url, i) => (
-                    <Card key={i} className="rounded-lg overflow-hidden">
-                      <div className="relative aspect-square">
-                        <Image
-                          alt="AI Image"
-                          fill
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          src={url}
-                        />
-                      </div>
-                      <CardFooter className="p-2">
-                        <Button
-                          onClick={() => window.open(url)}
-                          variant="secondary"
-                          className="w-full"
-                        >
-                          <Download className="h-4 w-4 mr-2" /> Download
-                        </Button>
-                      </CardFooter>
-                    </Card>
-                  ))}
+                  <audio controls autoPlay src={'/speech/' + msg.fileName}>
+                    Your browser does not support the audio element.
+                  </audio>
                 </div>
               </div>
             )}
@@ -140,7 +130,7 @@ const ImagePage = () => {
         </div>
       )}
       {messages.length < 1 && !isLoading && (
-        <Empty label="No images generated" />
+        <Empty label="No music generated" />
       )}
       <Form {...form}>
         <div className="px-4 lg:px-8 bg-zinc-100">
@@ -149,9 +139,9 @@ const ImagePage = () => {
             className="w-full py-4 focus-within:shadow-sm grid grid-cols-12 gap-2"
           >
             <FormField
-              name="prompt"
+              name="input"
               render={({ field }) => (
-                <FormItem className="col-span-12 lg:col-span-6">
+                <FormItem className="col-span-12">
                   <FormControl className="m-0 p-0">
                     <Input
                       className="px-4 outline-none focus-visible:ring-0 focus-visible:ring-transparent"
@@ -166,7 +156,7 @@ const ImagePage = () => {
               )}
             />
             <FormField
-              name="amount"
+              name="voice"
               control={form.control}
               render={({ field }) => (
                 <FormItem className="col-span-12 lg:col-span-2">
@@ -178,11 +168,11 @@ const ImagePage = () => {
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue defaultValue={field.value} />
+                        <SelectValue placeholder="Select Voice" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {amountOptions.map(({ value, label }, i) => (
+                      {voiceOptions.map(({ value, label }, i) => (
                         <SelectItem key={i} value={value}>
                           {label}
                         </SelectItem>
@@ -193,7 +183,7 @@ const ImagePage = () => {
               )}
             />
             <FormField
-              name="resolution"
+              name="format"
               control={form.control}
               render={({ field }) => (
                 <FormItem className="col-span-12 lg:col-span-2">
@@ -205,17 +195,41 @@ const ImagePage = () => {
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue defaultValue={field.value} />
+                        <SelectValue placeholder="Select Format" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {resolutionOptions.map(({ value, label }, i) => (
+                      {formatOptions.map(({ value, label }, i) => (
                         <SelectItem key={i} value={value}>
                           {label}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="speed"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem className="col-span-12 lg:col-span-6 flex justify-center items-center gap-4 space-y-0 bg-white px-4 rounded-md border">
+                  <div className="text-sm whitespace-nowrap">
+                    Adjust Speed:{' '}
+                    {typeof field.value === 'number'
+                      ? field.value.toFixed(2)
+                      : parseFloat(field.value).toFixed(2)}
+                  </div>
+                  <FormControl>
+                    <Slider
+                      disabled={isLoading}
+                      onValueChange={field.onChange}
+                      defaultValue={[1]}
+                      min={speedOptions.min}
+                      max={speedOptions.max}
+                      step={0.05}
+                    />
+                  </FormControl>
                 </FormItem>
               )}
             />
@@ -232,4 +246,4 @@ const ImagePage = () => {
   )
 }
 
-export default ImagePage
+export default SpeechPage
