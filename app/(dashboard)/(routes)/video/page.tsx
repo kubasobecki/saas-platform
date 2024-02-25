@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 
 import { cn } from '@/lib/utils'
-import { Music } from 'lucide-react'
+import { Video } from 'lucide-react'
 import Heading from '@/components/heading'
 import { Empty } from '@/components/empty'
 import { Loader } from '@/components/loader'
@@ -24,10 +24,10 @@ import AvatarBot from '@/components/avatar-bot'
 type Query = {
   role: 'user' | 'agent'
   prompt?: string
-  generatedMusic?: string
+  generatedVideo?: string
 }
 
-const MusicPage = () => {
+const VideoPage = () => {
   const router = useRouter()
   const [messages, setMessages] = useState<Query[]>([])
   const promptInput = useRef<HTMLInputElement>(null)
@@ -51,9 +51,9 @@ const MusicPage = () => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setMessages(prev => [...prev, { role: 'user', prompt: values.prompt }])
-      const response = await axios.post('/api/music', values)
-      const music = response.data.audio
-      setMessages(prev => [...prev, { role: 'agent', generatedMusic: music }])
+      const response = await axios.post('/api/video', values)
+      const music = response.data[0]
+      setMessages(prev => [...prev, { role: 'agent', generatedVideo: music }])
       form.reset()
     } catch (error: any) {
       // TODO: Open Pro Modal
@@ -66,11 +66,11 @@ const MusicPage = () => {
   return (
     <>
       <Heading
-        title="Music Generation"
-        description="Turn your prompt into music"
-        icon={Music}
-        iconColor="text-emerald-500"
-        bgColor="bg-emerald-500/10"
+        title="Video Generation"
+        description="Turn your prompt into video"
+        icon={Video}
+        iconColor="text-orange-500"
+        bgColor="bg-orange-500/10"
       />
       <div
         className="flex flex-col flex-1 gap-y-2 py-4 pl-4 pr-2 md:pl-8 md:pr-6 pb-4 overflow-y-auto overflow-x-hidden h-full [scrollbar-gutter:stable]"
@@ -92,13 +92,13 @@ const MusicPage = () => {
                 <p>{msg.prompt}</p>
               </div>
             )}
-            {msg.generatedMusic && (
+            {msg.generatedVideo && (
               <div className="flex flex-col md:flex-row gap-2">
                 <AvatarBot />
                 <div className="flex flex-wrap gap-2">
-                  <audio controls autoPlay src={msg.generatedMusic}>
+                  <video controls autoPlay src={msg.generatedVideo}>
                     Your browser does not support the audio element.
-                  </audio>
+                  </video>
                 </div>
               </div>
             )}
@@ -111,7 +111,7 @@ const MusicPage = () => {
         </div>
       )}
       {messages.length < 1 && !isLoading && (
-        <Empty label="No music generated" />
+        <Empty label="No video generated" />
       )}
       <Form {...form}>
         <div className="px-4 lg:px-8 bg-zinc-100">
@@ -149,4 +149,4 @@ const MusicPage = () => {
   )
 }
 
-export default MusicPage
+export default VideoPage
