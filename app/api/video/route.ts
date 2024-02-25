@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs'
 import Replicate from 'replicate'
+import { increaseApiLimit, checkApiLimit } from '@/lib/api-limit'
 
 const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN,
@@ -10,6 +11,10 @@ export async function POST(req: Request) {
   try {
     const { userId } = auth()
     if (!userId) return new NextResponse('Unauthorized', { status: 401 })
+
+    const freeTrial = await checkApiLimit()
+    if (!freeTrial)
+      return new NextResponse('Free trial has expired.', { status: 403 })
 
     const body = await req.json()
     const { prompt, style } = body
@@ -36,6 +41,8 @@ export async function POST(req: Request) {
         },
       }
     )
+
+    await increaseApiLimit()
 
     return NextResponse.json(response, { status: 200 })
   } catch (error) {

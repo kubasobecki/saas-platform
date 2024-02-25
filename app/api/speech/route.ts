@@ -3,6 +3,7 @@ import { auth } from '@clerk/nextjs'
 import OpenAI from 'openai'
 import fs from 'fs'
 import path from 'path'
+import { increaseApiLimit, checkApiLimit } from '@/lib/api-limit'
 
 const openai = new OpenAI()
 
@@ -10,6 +11,10 @@ export async function POST(req: Request) {
   try {
     const { userId } = auth()
     if (!userId) return new NextResponse('Unauthorized', { status: 401 })
+
+    const freeTrial = await checkApiLimit()
+    if (!freeTrial)
+      return new NextResponse('Free trial has expired.', { status: 403 })
 
     const body = await req.json()
     console.log(body)
@@ -31,6 +36,8 @@ export async function POST(req: Request) {
 
     const buffer = Buffer.from(await mp3.arrayBuffer())
     await fs.promises.writeFile(speechFile, buffer)
+
+    await increaseApiLimit()
 
     return NextResponse.json(fileName, { status: 200 })
   } catch (error) {
