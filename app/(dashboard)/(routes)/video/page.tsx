@@ -21,6 +21,8 @@ import { Loader } from '@/components/loader'
 import AvatarUser from '@/components/avatar-user'
 import AvatarBot from '@/components/avatar-bot'
 
+import { useProModal } from '@/hooks/use-pro-modal'
+
 type Query = {
   role: 'user' | 'agent'
   prompt?: string
@@ -28,6 +30,8 @@ type Query = {
 }
 
 const VideoPage = () => {
+  const proModal = useProModal()
+
   const router = useRouter()
   const [messages, setMessages] = useState<Query[]>([])
   const promptInput = useRef<HTMLInputElement>(null)
@@ -56,7 +60,7 @@ const VideoPage = () => {
       setMessages(prev => [...prev, { role: 'agent', generatedVideo: music }])
       form.reset()
     } catch (error: any) {
-      // TODO: Open Pro Modal
+      if (error?.response?.status === 403) proModal.onOpen()
       console.log(error)
     } finally {
       router.refresh()

@@ -22,6 +22,8 @@ import { Loader } from '@/components/loader'
 import Markdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
+
+import { useProModal } from '@/hooks/use-pro-modal'
 interface CodeProps {
   node?: any
   inline?: any
@@ -34,6 +36,8 @@ import AvatarUser from '@/components/avatar-user'
 import AvatarBot from '@/components/avatar-bot'
 
 const CodePage = () => {
+  const proModal = useProModal()
+
   const router = useRouter()
   const [messages, setMessages] = useState<ChatCompletionUserMessageParam[]>([])
   const promptInput = useRef<HTMLInputElement>(null)
@@ -72,7 +76,7 @@ const CodePage = () => {
 
       form.reset()
     } catch (error: any) {
-      // TODO: Open Pro Modal
+      if (error?.response?.status === 403) proModal.onOpen()
       console.log(error)
     } finally {
       router.refresh()

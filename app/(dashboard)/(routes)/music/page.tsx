@@ -20,6 +20,7 @@ import { Loader } from '@/components/loader'
 
 import AvatarUser from '@/components/avatar-user'
 import AvatarBot from '@/components/avatar-bot'
+import { useProModal } from '@/hooks/use-pro-modal'
 
 type Query = {
   role: 'user' | 'agent'
@@ -28,6 +29,8 @@ type Query = {
 }
 
 const MusicPage = () => {
+  const proModal = useProModal()
+
   const router = useRouter()
   const [messages, setMessages] = useState<Query[]>([])
   const promptInput = useRef<HTMLInputElement>(null)
@@ -56,7 +59,7 @@ const MusicPage = () => {
       setMessages(prev => [...prev, { role: 'agent', generatedMusic: music }])
       form.reset()
     } catch (error: any) {
-      // TODO: Open Pro Modal
+      if (error?.response?.status === 403) proModal.onOpen()
       console.log(error)
     } finally {
       router.refresh()
@@ -137,7 +140,7 @@ const MusicPage = () => {
               )}
             />
             <Button
-              className="col-span-12 lg:col-span-2 w-full"
+              className="col-span-12 md:col-span-2 w-full"
               disabled={isLoading}
             >
               Generate

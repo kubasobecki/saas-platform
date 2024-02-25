@@ -28,6 +28,7 @@ import { Card, CardFooter } from '@/components/ui/card'
 import Image from 'next/image'
 import AvatarUser from '@/components/avatar-user'
 import AvatarBot from '@/components/avatar-bot'
+import { useProModal } from '@/hooks/use-pro-modal'
 
 type Query = {
   role: 'user' | 'agent'
@@ -36,6 +37,8 @@ type Query = {
 }
 
 const ImagePage = () => {
+  const proModal = useProModal()
+
   const router = useRouter()
   const promptInput = useRef<HTMLInputElement>(null)
 
@@ -67,7 +70,7 @@ const ImagePage = () => {
       setMessages(prev => [...prev, { role: 'agent', generatedImages: urls }])
       form.reset()
     } catch (error: any) {
-      // TODO: Open Pro Modal
+      if (error?.response?.status === 403) proModal.onOpen()
       console.log(error)
     } finally {
       router.refresh()
