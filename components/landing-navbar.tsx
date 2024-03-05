@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 
 export const LandingNavbar = () => {
   const { isSignedIn } = useAuth()
+
   return (
     <nav className="p-4 bg-transparent flex items-center justify-between">
       <Link href="/" className="flex items-center">
