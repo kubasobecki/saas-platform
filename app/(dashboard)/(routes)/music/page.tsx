@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
+import toast from 'react-hot-toast'
 
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
@@ -60,7 +61,7 @@ const MusicPage = () => {
       form.reset()
     } catch (error: any) {
       if (error?.response?.status === 403) proModal.onOpen()
-      console.log(error)
+      else toast.error('Something went wrong')
     } finally {
       router.refresh()
     }

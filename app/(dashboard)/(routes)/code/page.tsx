@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import { ChatCompletionUserMessageParam } from 'openai/resources/index.mjs'
+import toast from 'react-hot-toast'
 
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
@@ -77,7 +78,7 @@ const CodePage = () => {
       form.reset()
     } catch (error: any) {
       if (error?.response?.status === 403) proModal.onOpen()
-      console.log(error)
+      else toast.error('Something went wrong')
     } finally {
       router.refresh()
     }

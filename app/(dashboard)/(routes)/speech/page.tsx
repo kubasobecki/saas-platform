@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
+import toast from 'react-hot-toast'
 
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
@@ -68,7 +69,6 @@ const SpeechPage = () => {
         promptInput.current.focus()
       }
     }
-    console.log(messages)
   })
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -79,7 +79,7 @@ const SpeechPage = () => {
       setMessages(prev => [...prev, { role: 'agent', fileName }])
     } catch (error: any) {
       if (error?.response?.status === 403) proModal.onOpen()
-      console.log(error)
+      else toast.error('Something went wrong')
     } finally {
       router.refresh()
     }
