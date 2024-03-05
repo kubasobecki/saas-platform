@@ -75,9 +75,10 @@ const routes = [
 
 interface SidebarProps {
   apiLimitCount: number
+  isPro: boolean
 }
 
-const Sidebar = ({ apiLimitCount = 0 }: SidebarProps) => {
+const Sidebar = ({ apiLimitCount = 0, isPro = false }: SidebarProps) => {
   const pathName = usePathname()
 
   return (
@@ -87,10 +88,10 @@ const Sidebar = ({ apiLimitCount = 0 }: SidebarProps) => {
           <Image width="143" height="36" alt="Logo" src="/logo.png" />
         </Link>
         <div className="space-y-1">
-          {routes.map(route => (
+          {routes.map((route, i) => (
             <Link
               href={route.href}
-              key={route.href}
+              key={i}
               className={cn(
                 'text-sm group flex p-3 w-full justify-start font-medium cursor-pointer hover:text-white hover:bg-white/10 rounded',
                 pathName === route.href
@@ -106,7 +107,7 @@ const Sidebar = ({ apiLimitCount = 0 }: SidebarProps) => {
           ))}
         </div>
       </div>
-      <FreeCounter apiLimitCount={apiLimitCount} />
+      {!isPro && <FreeCounter apiLimitCount={apiLimitCount} />}
     </div>
   )
 }
